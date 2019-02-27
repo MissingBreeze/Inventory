@@ -1,12 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2015
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bag", "Bag.csproj", "{303A3303-336A-D5A4-E339-5466D9C962CA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{303A3303-336A-D5A4-E339-5466D9C962CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{303A3303-336A-D5A4-E339-5466D9C962CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{303A3303-336A-D5A4-E339-5466D9C962CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{303A3303-336A-D5A4-E339-5466D9C962CA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -239,11 +239,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\BaseElement\ScrollView\Data\IViewData.cs" />
+    <Compile Include="Assets\BaseElement\ScrollView\Data\SliderTypeEnum.cs" />
+    <Compile Include="Assets\BaseElement\ScrollView\BaseScrollListItem.cs" />
+    <Compile Include="Assets\BaseElement\ScrollView\ScrollViewListItem.cs" />
+    <Compile Include="Assets\BaseElement\ScrollView\ScrollViewManage.cs" />
     <Compile Include="Assets\Scripts\BagManage.cs" />
+    <Compile Include="Assets\Scripts\BagScrollView\ScrollViewItemView.cs" />
     <Compile Include="Assets\Scripts\DataDto\GoodsDataDto.cs" />
-    <Compile Include="Assets\Scripts\ScrollView\Data\IViewData.cs" />
-    <Compile Include="Assets\Scripts\ScrollView\ScrollViewListItem.cs" />
-    <Compile Include="Assets\Scripts\ScrollView\ScrollViewManage.cs" />
     <Compile Include="Assets\Scripts\ToggleGroupManage.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

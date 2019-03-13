@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using WYF.BaseUIElement.ScrollView.Data;
 
-class GoodsDataDto: IViewData
+public class GoodsDataDto: IViewData
 {
     public string name { get; set; }
 }

@@ -76,7 +76,7 @@ namespace WYF.Utils
             PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
             eventDataCurrentPosition.position = new Vector2
                 (
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_STANDALONE
             Input.mousePosition.x, Input.mousePosition.y
 #elif UNITY_ANDROID || UNITY_IOS
            Input.touchCount > 0 ? Input.GetTouch(0).position.x : 0, Input.touchCount > 0 ? Input.GetTouch(0).position.y : 0

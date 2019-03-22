@@ -12,6 +12,8 @@ namespace WYF.DataDto
 
         public static readonly string DRAG = "drag";
 
+        public static readonly string DRAGEND = "dragend";
+
         /// <summary>
         /// 当前选择的子项物体
         /// </summary>
@@ -40,7 +42,7 @@ namespace WYF.DataDto
             this.index = index;
         }
 
-        public ScrollItemEventData()
+        public ScrollItemEventData(string eventType)
         {
 
         }

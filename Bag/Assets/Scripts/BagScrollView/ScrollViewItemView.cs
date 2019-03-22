@@ -13,11 +13,16 @@ public class ScrollViewItemView : ScrollViewListItem,IBeginDragHandler,IEndDragH
 {
     private GoodsDataDto goodsDataDto;
 
+    private Text text;
 
-    void Start ()
+    private GameObject maskImg;
+
+    void Awake()
     {
-		
-	}
+        text = transform.Find("Text").GetComponent<Text>();
+        maskImg = transform.Find("maskImg").GetComponent<Image>().gameObject;
+        maskImg.SetActive(false);
+    }
 	
 	void Update ()
     {
@@ -28,15 +33,12 @@ public class ScrollViewItemView : ScrollViewListItem,IBeginDragHandler,IEndDragH
     {
         base.LoadData(viewdata);
         goodsDataDto = viewdata as GoodsDataDto;
-        Text text = transform.Find("Text").GetComponent<Text>();
+        
         text.text = goodsDataDto.name;
         transform.GetComponent<Button>().onClick.AddListener(()=> 
         {
             ChangeState(!IsSelect);
-            text.text = "被选中了";
         });
-
-        
     }
 
     public override void OnStateChange(bool state)
@@ -44,27 +46,42 @@ public class ScrollViewItemView : ScrollViewListItem,IBeginDragHandler,IEndDragH
         base.OnStateChange(state);
         if (!state)
         {
-            Text text = transform.Find("Text").GetComponent<Text>();
             text.text = "取消";
         }
-
+        else
+        {
+            text.text = "被选中了";
+        }
     }
+
+    //public void ShowMaskImg()
+    //{
+    //    if(!maskImg.activeSelf)
+    //        StartCoroutine(WaitCloseImg());
+    //}
+
+    //private IEnumerator WaitCloseImg()
+    //{
+    //    maskImg.SetActive(true);
+    //    yield return new WaitForSeconds(0.1f);
+    //    maskImg.SetActive(false);
+    //}
+
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        Debug.LogError("开始");
         ScrollItemEventData scrollItemEventData = new ScrollItemEventData(ScrollItemEventData.DRAG, Index, gameObject, goodsDataDto);
         EventManager.Instance.SendEventData(ScrollItemEventData.DRAG, scrollItemEventData);
+        maskImg.SetActive(true);
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        Debug.LogError("结束");
+        EventManager.Instance.SendEventData(ScrollItemEventData.DRAGEND, new ScrollItemEventData(ScrollItemEventData.DRAGEND));
+        maskImg.SetActive(false);
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        
-
     }
 }

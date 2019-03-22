@@ -77,11 +77,12 @@ namespace WYF.BaseUIElement.ScrollView
         {
             ScrollViewListItem item = new ScrollViewListItem();
             item = Instantiate(prefab, content).GetComponent<ScrollViewListItem>();
-            item.LoadData(itemData);
             item.Index = itemList.Count;
             item.stateChange = ItemStateChange;
             item.gameObject.SetActive(true);
             itemList.Add(item);
+            item.LoadData(itemData);
+            this.itemData.Add(itemData);
             return true;
         }
 
@@ -139,6 +140,10 @@ namespace WYF.BaseUIElement.ScrollView
             itemList[index1].Index = index2;
             itemList[index2].transform.SetSiblingIndex(tempIndex);
             itemList[index2].Index = index1;
+
+            ScrollViewListItem tempScrollItem = itemList[index1];
+            itemList[index1] = itemList[index2];
+            itemList[index2] = tempScrollItem;
 
             IViewData tempData = itemData[index1];
             itemData[index1] = itemData[index2];

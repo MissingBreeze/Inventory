@@ -21,6 +21,8 @@ public class BagManage : MonoBehaviour
 
     WYF.BaseUIElement.ToggleGroup.ToggleGroupManage toggleGroup;
 
+    private List<GoodsDataDto> goods;
+
     private void OnDisable()
     {
         EventManager.Instance.RemoveEventListener<ScrollItemEventData>(ScrollItemEventData.DRAG, DragHandler);
@@ -28,28 +30,92 @@ public class BagManage : MonoBehaviour
 
     void Start ()
     {
+        GoodsDataDto goodsDataDto = new GoodsDataDto("0", "小血瓶", "10");
+        GoodsDataDto goodsDataDto1 = new GoodsDataDto("1", "小蓝瓶", "5");
+        GoodsDataDto goodsDataDto2 = new GoodsDataDto("2", "木剑", "1");
+        GoodsDataDto goodsDataDto3 = new GoodsDataDto("3", "木甲", "1");
+        GoodsDataDto goodsDataDto4 = new GoodsDataDto("4", "传送石", "7");
+        goods = new List<GoodsDataDto>();
+        goods.Add(goodsDataDto);
+        //goods.Add(goodsDataDto1);
+        //goods.Add(goodsDataDto2);
+        //goods.Add(goodsDataDto3);
+        //goods.Add(goodsDataDto4);
+        Test tt = new Test();
+        tt.data = goods;
+        string json = JsonUtility.ToJson(tt);
+        Debug.LogError(json);
+        //string json = JsonUtility.ToJson(new Serialization<GoodsDataDto>(goods));
+        //Debug.LogError(json);
+        return;
         scrollViewManage = transform.Find("Scroll View").GetComponent<ScrollViewManage>();
         List<GoodsDataDto> dataList = new List<GoodsDataDto>();
-        for (int i = 0; i < itemCount; i++)
-        {
-            GoodsDataDto goodsDataDto = new GoodsDataDto();
-            goodsDataDto.name = "item" + i;
-            dataList.Add(goodsDataDto);
-        }
+        //for (int i = 0; i < itemCount; i++)
+        //{
+        //    GoodsDataDto goodsDataDto = new GoodsDataDto();
+        //    goodsDataDto.name = "item" + i;
+        //    dataList.Add(goodsDataDto);
+        //}
         scrollViewManage.UpAllData(dataList);
         scrollViewManage.RegisterSliderEvent(SliderTypeEnum.Up, Additem);
         add.onClick.AddListener(Additem);
 
         //toggleGroup = transform.Find("ToggleGroup").GetComponent<WYF.BaseUIElement.ToggleGroup.ToggleGroup>();
         EventManager.Instance.AddEventListener<ScrollItemEventData>(ScrollItemEventData.DRAG, DragHandler);
+        EventManager.Instance.AddEventListener<ScrollItemEventData>(ScrollItemEventData.DRAGEND, DragEndHandler);
+    }
 
+    #region 滑动列表相关
+
+    private void DragEndHandler(ScrollItemEventData e)
+    {
+        isDragScrollItem = false;
+        List<GameObject> goList = MouseRaycastUtils.Instance.MouseRaycast("ScrollItem");
+        Destroy(item.gameObject);
+        if (goList != null && goList.Count != 0)
+        {
+            ScrollViewItemView scrollViewItemView = goList[0].GetComponent<ScrollViewItemView>();
+            if (scrollViewItemView)
+            {
+                scrollViewManage.ExchangeItem<GoodsDataDto>(index, scrollViewItemView.Index);
+            }
+        }
     }
 
     private void DragHandler(ScrollItemEventData e)
     {
-        Debug.LogError("收到Begin");
-
+        index = e.index;
+        item = Instantiate(e.itemGo, scrollViewManage.transform).transform;
+        item.GetComponent<Image>().raycastTarget = false;
+        RectTransform rt = item.GetComponent<RectTransform>();
+        rt.pivot = new Vector2(0,1);
+        rt.anchorMin = new Vector2(0,1);
+        rt.anchorMax = new Vector2(0, 1);
+        rt.sizeDelta = new Vector2(e.itemGo.transform.GetComponent<RectTransform>().rect.width, e.itemGo.transform.GetComponent<RectTransform>().rect.height);
+        isDragScrollItem = true;
     }
+
+    private Transform item;
+
+    private int index;
+
+    private void DragItem()
+    {
+        Vector2 position;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(transform.GetComponent<RectTransform>(), Input.mousePosition, null, out position);
+        item.localPosition = new Vector3(position.x - item.GetComponent<RectTransform>().sizeDelta.x / 2, position.y, 0);
+        //List<GameObject> goList = MouseRaycastUtils.Instance.MouseRaycast("ScrollItem");
+        //if(goList != null && goList.Count > 0)
+        //{
+        //    ScrollViewItemView scrollViewItemView = goList[0].GetComponent<ScrollViewItemView>();
+        //    if (scrollViewItemView)
+        //    {
+        //        scrollViewItemView.ShowMaskImg();
+        //    }
+        //}
+    }
+
+    #endregion
 
     private void Additem()
     {
@@ -63,34 +129,14 @@ public class BagManage : MonoBehaviour
         scrollViewManage.LoadData(dataList);
     }
 
+    private bool isDragScrollItem = false;
+
     void Update ()
     {
-        if (Input.GetMouseButtonUp(0))
+        if (isDragScrollItem)
         {
-//            PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
-//            eventDataCurrentPosition.position = new Vector2
-//                (
-//#if UNITY_EDITOR
-//            Input.mousePosition.x, Input.mousePosition.y
-//#elif UNITY_ANDROID || UNITY_IOS
-//           Input.touchCount > 0 ? Input.GetTouch(0).position.x : 0, Input.touchCount > 0 ? Input.GetTouch(0).position.y : 0
-//#endif
-//            );
-//            List<RaycastResult> results = new List<RaycastResult>();
-//            EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
-//            for (int i = 0; i < results.Count; i++)
-//            {
-//                if (results[i].gameObject.GetComponent<ScrollViewItemView>())
-//                {
-//                    GoodsDataDto goodsDataDto = results[i].gameObject.GetComponent<ScrollViewItemView>().viewData as GoodsDataDto;
-//                    Debug.LogError(goodsDataDto.name);
-//                }
-//            }
+            DragItem();
+        }
 
-        }
-        if (Input.GetMouseButtonDown(0))
-        {
-            Debug.LogError(MouseRaycastUtils.Instance.MouseRaycast()[0].name);
-        }
     }
 }

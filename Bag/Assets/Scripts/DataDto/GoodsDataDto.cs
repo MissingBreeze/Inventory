@@ -5,7 +5,7 @@ using System.Text;
 using UnityEngine;
 using WYF.BaseUIElement.ScrollView.Data;
 
-[SerializeField]
+[Serializable]
 public class GoodsDataDto: IViewData
 {
     /// <summary>

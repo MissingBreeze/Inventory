@@ -9,7 +9,7 @@ using WYF.BaseUIElement.ScrollView;
 using WYF.BaseUIElement.ScrollView.Data;
 using WYF.DataDto;
 
-public class ScrollViewItemView : ScrollViewListItem,IBeginDragHandler,IEndDragHandler, IDragHandler
+public class ScrollViewItemView : ScrollViewListItem,IBeginDragHandler,IEndDragHandler, IDragHandler,IPointerEnterHandler,IPointerExitHandler
 {
     private GoodsDataDto goodsDataDto;
 
@@ -54,20 +54,6 @@ public class ScrollViewItemView : ScrollViewListItem,IBeginDragHandler,IEndDragH
         }
     }
 
-    //public void ShowMaskImg()
-    //{
-    //    if(!maskImg.activeSelf)
-    //        StartCoroutine(WaitCloseImg());
-    //}
-
-    //private IEnumerator WaitCloseImg()
-    //{
-    //    maskImg.SetActive(true);
-    //    yield return new WaitForSeconds(0.1f);
-    //    maskImg.SetActive(false);
-    //}
-
-
     public void OnBeginDrag(PointerEventData eventData)
     {
         ScrollItemEventData scrollItemEventData = new ScrollItemEventData(ScrollItemEventData.DRAG, Index, gameObject, goodsDataDto);
@@ -83,5 +69,15 @@ public class ScrollViewItemView : ScrollViewListItem,IBeginDragHandler,IEndDragH
 
     public void OnDrag(PointerEventData eventData)
     {
+    }
+
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        EventManager.Instance.SendEventData(ScrollItemEventData.SHOW, new ScrollItemEventData(ScrollItemEventData.SHOW, goodsDataDto.id));
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        EventManager.Instance.SendEventData(ScrollItemEventData.CLOSE, new ScrollItemEventData(ScrollItemEventData.CLOSE));
     }
 }

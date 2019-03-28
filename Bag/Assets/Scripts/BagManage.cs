@@ -23,6 +23,10 @@ public class BagManage : MonoBehaviour
 
     private List<GoodsDataDto> goods;
 
+    private Image caption;
+
+    private Text captionTxt;
+
     private void OnDisable()
     {
         EventManager.Instance.RemoveEventListener<ScrollItemEventData>(ScrollItemEventData.DRAG, DragHandler);
@@ -30,22 +34,16 @@ public class BagManage : MonoBehaviour
 
     void Start ()
     {
-        GoodsDataDto goodsDataDto = new GoodsDataDto("0", "小血瓶", "10");
-        GoodsDataDto goodsDataDto1 = new GoodsDataDto("1", "小蓝瓶", "5");
-        GoodsDataDto goodsDataDto2 = new GoodsDataDto("2", "木剑", "1");
-        GoodsDataDto goodsDataDto3 = new GoodsDataDto("3", "木甲", "1");
-        GoodsDataDto goodsDataDto4 = new GoodsDataDto("4", "传送石", "7");
-        goods = new List<GoodsDataDto>();
-        goods.Add(goodsDataDto);
-        goods.Add(goodsDataDto1);
-        goods.Add(goodsDataDto2);
-        goods.Add(goodsDataDto3);
-        goods.Add(goodsDataDto4);
-        string json = JsonUtility.ToJson(new Serialization<GoodsDataDto>(goods));
-        FileOperateUtils.Instance.WriteFile("PlayerBag.json", "", json);
-        return;
+        caption = transform.Find("Scroll View/caption").GetComponent<Image>();
+        captionTxt = caption.transform.Find("captionTxt").GetComponent<Text>();
+        caption.gameObject.SetActive(false);
+
+        string dataStr = FileOperateUtils.Instance.ReadFile("PlayerBag.json", "");
+
+        List<GoodsDataDto> dataList = JsonUtility.FromJson<Serialization<GoodsDataDto>>(dataStr).ToList();
+
         scrollViewManage = transform.Find("Scroll View").GetComponent<ScrollViewManage>();
-        List<GoodsDataDto> dataList = new List<GoodsDataDto>();
+        //List<GoodsDataDto> dataList = new List<GoodsDataDto>();
         //for (int i = 0; i < itemCount; i++)
         //{
         //    GoodsDataDto goodsDataDto = new GoodsDataDto();
@@ -53,12 +51,27 @@ public class BagManage : MonoBehaviour
         //    dataList.Add(goodsDataDto);
         //}
         scrollViewManage.UpAllData(dataList);
-        scrollViewManage.RegisterSliderEvent(SliderTypeEnum.Up, Additem);
+        //scrollViewManage.RegisterSliderEvent(SliderTypeEnum.Up, Additem);
         add.onClick.AddListener(Additem);
 
         //toggleGroup = transform.Find("ToggleGroup").GetComponent<WYF.BaseUIElement.ToggleGroup.ToggleGroup>();
         EventManager.Instance.AddEventListener<ScrollItemEventData>(ScrollItemEventData.DRAG, DragHandler);
         EventManager.Instance.AddEventListener<ScrollItemEventData>(ScrollItemEventData.DRAGEND, DragEndHandler);
+        EventManager.Instance.AddEventListener<ScrollItemEventData>(ScrollItemEventData.SHOW, ShowCaptionHandler);
+        EventManager.Instance.AddEventListener<ScrollItemEventData>(ScrollItemEventData.CLOSE, CloseCaptionHandler);
+    }
+
+    private void CloseCaptionHandler(ScrollItemEventData e)
+    {
+        caption.gameObject.SetActive(false);
+    }
+
+    private void ShowCaptionHandler(ScrollItemEventData e)
+    {
+        caption.gameObject.SetActive(true);
+        Vector2 position;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(transform.GetComponent<RectTransform>(), Input.mousePosition, null, out position);
+        caption.GetComponent<RectTransform>().localPosition = new Vector3(position.x, position.y, 0);
     }
 
     #region 滑动列表相关

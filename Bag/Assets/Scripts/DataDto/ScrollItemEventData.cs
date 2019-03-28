@@ -46,5 +46,17 @@ namespace WYF.DataDto
         {
 
         }
+
+
+        public static readonly string SHOW = "show";
+
+        public static readonly string CLOSE = "close";
+
+        public ScrollItemEventData(string eventType, string id)
+        {
+            this.id = id;
+        }
+
+        public string id { get; set; }
     }
 }

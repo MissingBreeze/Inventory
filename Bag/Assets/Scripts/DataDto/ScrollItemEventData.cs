@@ -47,6 +47,13 @@ namespace WYF.DataDto
 
         }
 
+        public ScrollItemEventData(string eventType, int index, GoodsDataDto goodsDataDto)
+        {
+            this.goodsDataDto = goodsDataDto;
+            this.eventType = eventType;
+            this.index = index;
+        }
+
 
         public static readonly string SHOW = "show";
 

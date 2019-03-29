@@ -63,7 +63,7 @@ public class ScrollViewItemView : ScrollViewListItem,IBeginDragHandler,IEndDragH
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        EventManager.Instance.SendEventData(ScrollItemEventData.DRAGEND, new ScrollItemEventData(ScrollItemEventData.DRAGEND));
+        EventManager.Instance.SendEventData(ScrollItemEventData.DRAGEND, new ScrollItemEventData(ScrollItemEventData.DRAGEND, Index, goodsDataDto));
         maskImg.SetActive(false);
     }
 

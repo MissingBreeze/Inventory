@@ -31,6 +31,9 @@ public class GoodsDto
     [SerializeField]
     public bool isAdd;
 
+    [SerializeField]
+    public string tag;
+
     public GoodsDto() { }
 
     public GoodsDto(string id, string name, string describe, bool isAdd)

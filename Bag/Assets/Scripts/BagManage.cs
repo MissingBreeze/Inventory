@@ -9,15 +9,22 @@ using WYF.BaseUIElement.ScrollView;
 using WYF.BaseUIElement.ScrollView.Data;
 using WYF.DataDto;
 using WYF.Utils;
+using System.Linq;
 
 public class BagManage : MonoBehaviour
 {
-
-    public int itemCount = 36;
-
     public Button add1;
     public Button add2;
     public Button save;
+
+    /// <summary>
+    /// 整理
+    /// </summary>
+    public Button arrangement;
+    /// <summary>
+    /// 出售
+    /// </summary>
+    public Button sales;
 
     private ScrollViewManage scrollViewManage;
 
@@ -56,11 +63,80 @@ public class BagManage : MonoBehaviour
         add1.onClick.AddListener(Additem1);
         add2.onClick.AddListener(Additem2);
         save.onClick.AddListener(SaveBagData);
-        //toggleGroup = transform.Find("ToggleGroup").GetComponent<WYF.BaseUIElement.ToggleGroup.ToggleGroup>();
+        arrangement.onClick.AddListener(Arrangement);
+        sales.onClick.AddListener(Sales);
+        toggleGroup = transform.Find("ToggleGroup").GetComponent<WYF.BaseUIElement.ToggleGroup.ToggleGroupManage>();
+        toggleGroup.AddValueChangeEvent(ToggleValueChange);
         EventManager.Instance.AddEventListener<ScrollItemEventData>(ScrollItemEventData.DRAG, DragHandler);
         EventManager.Instance.AddEventListener<ScrollItemEventData>(ScrollItemEventData.DRAGEND, DragEndHandler);
         EventManager.Instance.AddEventListener<ScrollItemEventData>(ScrollItemEventData.SHOW, ShowCaptionHandler);
         EventManager.Instance.AddEventListener<ScrollItemEventData>(ScrollItemEventData.CLOSE, CloseCaptionHandler);
+    }
+
+    /// <summary>
+    /// 整理
+    /// </summary>
+    private void Arrangement()
+    {
+        Dictionary<string, GoodsDataDto> temp = new Dictionary<string, GoodsDataDto>();
+        for (int i = 0; i < dataList.Count; i++)
+        {
+            if (!temp.ContainsKey(dataList[i].id))
+            {
+                temp.Add(dataList[i].id, dataList[i]);
+            }
+            else
+            {
+                if(dataList[i].isAdd)
+                    temp[dataList[i].id].count = temp[dataList[i].id].count + dataList[i].count;
+                else
+                    temp.Add(dataList[i].id + i, dataList[i]);
+            }
+        }
+        dataList = new List<GoodsDataDto>();
+        foreach (var item in temp)
+        {
+            dataList.Add(item.Value);
+        }
+        GetPropData();
+        GetEquitData();
+        if (toggleGroup.fileValue == "AllToggle")
+        {
+            scrollViewManage.UpAllData(dataList);
+        }
+        else if (toggleGroup.fileValue == "EquipToggle")
+        {
+            scrollViewManage.UpAllData(equitData);
+        }
+        else
+        {
+            scrollViewManage.UpAllData(propData);
+        }
+    }
+
+    private bool isSale = false;
+
+    /// <summary>
+    /// 出售
+    /// </summary>
+    private void Sales()
+    {
+        if (!isSale)
+        {
+            EventManager.Instance.SendEventData(ScrollItemEventData.OPEN, new ScrollItemEventData(ScrollItemEventData.OPEN));
+        }
+        else
+        {
+            List<int> itemList = scrollViewManage.GetSelectIndex();
+            itemList = itemList.OrderByDescending(x => x).ToList();
+            for (int i = 0; i < itemList.Count; i++)
+            {
+                dataList.RemoveAt(itemList[i]);
+                scrollViewManage.RemoveItem(itemList[i]);
+            }
+            EventManager.Instance.SendEventData(ScrollItemEventData.SHUT, new ScrollItemEventData(ScrollItemEventData.OPEN));
+        }
+        isSale = !isSale;
     }
 
     #region 显示物品说明相关
@@ -109,14 +185,20 @@ public class BagManage : MonoBehaviour
         if (goList != null && goList.Count != 0)
         {
             ScrollViewItemView scrollViewItemView = goList[0].GetComponent<ScrollViewItemView>();
-            if (scrollViewItemView)
+            if (scrollViewItemView && scrollViewItemView.Index != e.index)
             {
                 GoodsDataDto goodsDataDto = scrollViewItemView.viewData as GoodsDataDto;
-                if (e.id == goodsDataDto.id && goodsDataDto.isAdd)
+                if (e.goodsDataDto.id == goodsDataDto.id && goodsDataDto.isAdd)
                 {
-
+                    scrollViewItemView.AddCount(e.goodsDataDto.count);
+                    scrollViewManage.RemoveItem(new List<int> { e.index });
+                    //dataList[scrollViewItemView.Index].count += e.goodsDataDto.count;
+                    dataList.RemoveAt(e.index);
                 }
-                scrollViewManage.ExchangeItem<GoodsDataDto>(e.index, scrollViewItemView.Index, dataList);
+                else
+                {
+                    scrollViewManage.ExchangeItem<GoodsDataDto>(e.index, scrollViewItemView.Index, dataList);
+                }
             }
         }
     }
@@ -151,7 +233,7 @@ public class BagManage : MonoBehaviour
         List<GoodsDataDto> data= new List<GoodsDataDto>();
         int index = UnityEngine.Random.Range(0, 2);
         GoodsDto goodsDto = GoodsDataManage.dataDic[index.ToString()];
-        GoodsDataDto goodsDataDto = new GoodsDataDto(goodsDto.id, goodsDto.name, 1, goodsDto.describe, goodsDto.isAdd);
+        GoodsDataDto goodsDataDto = new GoodsDataDto(goodsDto.id, goodsDto.name, 1, goodsDto.describe, goodsDto.tag, goodsDto.isAdd);
         dataList.Add(goodsDataDto);
         data.Add(goodsDataDto);
         scrollViewManage.LoadData(data);
@@ -162,7 +244,7 @@ public class BagManage : MonoBehaviour
         List<GoodsDataDto> data = new List<GoodsDataDto>();
         int index = UnityEngine.Random.Range(2, 4);
         GoodsDto goodsDto = GoodsDataManage.dataDic[index.ToString()];
-        GoodsDataDto goodsDataDto = new GoodsDataDto(goodsDto.id, goodsDto.name, 1, goodsDto.describe, goodsDto.isAdd);
+        GoodsDataDto goodsDataDto = new GoodsDataDto(goodsDto.id, goodsDto.name, 1, goodsDto.describe, goodsDto.tag, goodsDto.isAdd);
         dataList.Add(goodsDataDto);
         data.Add(goodsDataDto);
         scrollViewManage.LoadData(data);
@@ -182,6 +264,61 @@ public class BagManage : MonoBehaviour
         {
             DragItem();
         }
+    }
 
+    private string toggleValue;
+
+    private void ToggleValueChange(bool arg0)
+    {
+        if(toggleGroup.fileValue == toggleValue)
+        {
+            return;
+        }
+        if(toggleGroup.fileValue == "AllToggle")
+        {
+            scrollViewManage.UpAllData(dataList);
+        }
+        else if(toggleGroup.fileValue == "EquipToggle")
+        {
+            scrollViewManage.UpAllData(GetEquitData());
+        }
+        else
+        {
+            scrollViewManage.UpAllData(GetPropData());
+        }
+        toggleValue = toggleGroup.fileValue;
+    }
+
+    private List<GoodsDataDto> equitData;
+
+    private List<GoodsDataDto> propData;
+
+    private List<GoodsDataDto> GetEquitData()
+    {
+        if(equitData == null || equitData.Count == 0)
+        {
+            equitData = new List<GoodsDataDto>();
+            for (int i = 0; i < dataList.Count; i++)
+            {
+                if(dataList[i].tag == "eq")
+                {
+                    equitData.Add(dataList[i]);
+                }
+            }
+        }
+        return equitData;
+    }
+
+    private List<GoodsDataDto> GetPropData()
+    {
+        propData = new List<GoodsDataDto>();
+        for (int i = 0; i < dataList.Count; i++)
+        {
+            if (dataList[i].tag == "pr")
+            {
+                propData.Add(dataList[i]);
+            }
+        }
+        return propData;
     }
 }

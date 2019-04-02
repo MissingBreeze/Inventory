@@ -65,5 +65,10 @@ namespace WYF.DataDto
         }
 
         public string id { get; set; }
+
+
+        public static readonly string OPEN = "open";
+
+        public static readonly string SHUT = "SHUT";
     }
 }

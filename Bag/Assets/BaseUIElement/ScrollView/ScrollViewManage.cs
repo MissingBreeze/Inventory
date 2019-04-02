@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using WYF.BaseUIElement.ScrollView.Data;
@@ -165,9 +166,29 @@ namespace WYF.BaseUIElement.ScrollView
         {
             if (idList != null && idList.Count > 0)
             {
+                idList = idList.OrderByDescending(x => x).ToList();
                 for (int i = 0; i < idList.Count; i++)
                 {
-                    RemoveItem(idList[i]);
+                    RemoveItemHander(idList[i]);
+                }
+            }
+            RedistributionIndex();
+        }
+
+        /// <summary>
+        /// 移除单个子项通用方法
+        /// </summary>
+        /// <param name="index"></param>
+        private void RemoveItemHander(int index)
+        {
+            if(index < itemData.Count)
+            {
+                Destroy(itemList[index].gameObject);
+                itemData.RemoveAt(index);
+                itemList.RemoveAt(index);
+                if (selectIdList.Contains(index))
+                {
+                    selectIdList.Remove(index);
                 }
             }
         }
@@ -175,11 +196,11 @@ namespace WYF.BaseUIElement.ScrollView
         /// <summary>
         /// 移除单个子项
         /// </summary>
-        /// <param name="id">子项索引</param>
-        public void RemoveItem(int id)
+        /// <param name="index">子项索引</param>
+        public void RemoveItem(int index)
         {
-            Destroy(itemList[id]);
-            itemData.RemoveAt(id);
+            RemoveItemHander(index);
+            RedistributionIndex();
         }
 
         /// <summary>
@@ -190,6 +211,17 @@ namespace WYF.BaseUIElement.ScrollView
         public void UpdateItemData(int index, IViewData itemData)
         {
             itemList[index].LoadData(itemData);
+        }
+
+        /// <summary>
+        /// 重新分配子项索引
+        /// </summary>
+        private void RedistributionIndex()
+        {
+            for (int i = 0; i < itemList.Count; i++)
+            {
+                itemList[i].Index = i;
+            }
         }
 
         #region 子项选中相关
@@ -208,19 +240,22 @@ namespace WYF.BaseUIElement.ScrollView
         /// <param name="state"></param>
         public void SetItemState(int index, bool state)
         {
-            if (selectIdList.Contains(index))
+            if (state && selectIdList.Contains(index))
                 return;
-            if (selectCount != 0 && selectCount == selectIdList.Count)
+            if (state)
             {
-                itemList[selectIdList[0]].SetState(false);
-                selectIdList.RemoveAt(0);
+                if(selectCount != 0 && selectCount == selectIdList.Count)// 达到最大选中数量时，将第一个子项设置为未选中
+                {
+                    itemList[selectIdList[0]].SetState(false);
+                    selectIdList.RemoveAt(0);
+                }
+                selectIdList.Add(index);
             }
-            selectIdList.Add(index);
             itemList[index].SetState(state);
         }
 
         /// <summary>
-        /// 设置单个子项选中状态
+        /// 批量设置子项选中状态
         /// </summary>
         /// <param name="index"></param>
         /// <param name="state"></param>
@@ -236,7 +271,7 @@ namespace WYF.BaseUIElement.ScrollView
         /// 获取选中的子项id
         /// </summary>
         /// <returns></returns>
-        public List<int> GetSelectId()
+        public List<int> GetSelectIndex()
         {
             return selectIdList;
         }

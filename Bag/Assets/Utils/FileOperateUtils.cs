@@ -38,11 +38,12 @@ namespace WYF.Utils
             }
             else
             {
-                fs = new FileStream(path, FileMode.OpenOrCreate);
+                fs = new FileStream(path, FileMode.Create, FileAccess.Write);
             }
             fs.Write(bytes, 0, bytes.Length);
             fs.Flush();
             fs.Close();
+            Debug.LogError("ok");
         }
 
         /// <summary>
@@ -58,7 +59,6 @@ namespace WYF.Utils
             {
                 return string.Empty;
             }
-
             FileStream fs = new FileStream(path, FileMode.Open);
             byte[] bytes = new byte[(int)fs.Length];
             fs.Read(bytes, 0, bytes.Length);

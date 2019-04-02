@@ -16,13 +16,14 @@ public class GoodsDataDto: GoodsDto, IViewData
 
     public GoodsDataDto() { }
 
-    public GoodsDataDto(string id, string name, int count, string describe, bool isAdd)
+    public GoodsDataDto(string id, string name, int count, string describe,string tag, bool isAdd)
     {
         this.id = id;
         this.name = name;
         this.count = count;
         this.describe = describe;
         this.isAdd = isAdd;
+        this.tag = tag;
     }
 }
 
